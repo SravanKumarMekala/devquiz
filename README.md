@@ -2,7 +2,7 @@
 
 An interactive quiz application to help developers prepare for technical interviews. Covers **Python**, **JavaScript**, **SQL**, and **React JS** — the exact stack required for modern full-stack roles.
 
-🔗 **Live Demo:** [https://yourusername.github.io/devquiz](https://yourusername.github.io/devquiz)
+🔗 **Live Demo:** [[https://yourusername.github.io/devquiz](https://sravankumarmekala.github.io/devquiz/)]([https://yourusername.github.io/devquiz](https://sravankumarmekala.github.io/devquiz/))
 
 ---
 
