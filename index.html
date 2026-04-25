@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DevQuiz — Python & JS Interview Prep</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f0e8;
+      --surface: #fffdf7;
+      --border: #ddd8cc;
+      --accent: #1a1a2e;
+      --accent2: #e63946;
+      --green: #2d6a4f;
+      --text: #1a1a2e;
+      --muted: #8a8474;
+      --yellow: #f4a261;
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Subtle grid pattern */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(26,26,46,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(26,26,46,0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      position: relative;
+      z-index: 10;
+      background: var(--accent);
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .logo span { color: var(--yellow); }
+
+    .score-display {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      background: rgba(255,255,255,0.1);
+      padding: 0.4rem 0.9rem;
+      border-radius: 8px;
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+
+    /* Category Selector */
+    .category-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .cat-btn {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      border: 2px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+
+    .cat-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .cat-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+    /* Quiz Card */
+    .quiz-card {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-header {
+      background: var(--accent);
+      padding: 1.25rem 1.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .q-meta {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.6);
+    }
+
+    .q-tag {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.7rem;
+      background: var(--yellow);
+      color: var(--accent);
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .q-tag.js { background: #f7df1e; color: #222; }
+    .q-tag.python { background: #3572A5; color: white; }
+    .q-tag.sql { background: #e38c00; color: white; }
+    .q-tag.react { background: #61dafb; color: #222; }
+
+    .question-body {
+      padding: 1.75rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .question-text {
+      font-size: 1.1rem;
+      font-weight: 600;
+      line-height: 1.5;
+      margin-bottom: 0.75rem;
+    }
+
+    .code-snippet {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.82rem;
+      background: var(--accent);
+      color: #e8e8f0;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin-top: 0.75rem;
+      overflow-x: auto;
+      line-height: 1.6;
+    }
+
+    .options-grid {
+      padding: 1.25rem 1.75rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .option-btn {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 500;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: white;
+      transform: translateY(-1px);
+    }
+
+    .option-btn.correct { background: #d1fae5; border-color: var(--green); color: var(--green); }
+    .option-btn.wrong { background: #fee2e2; border-color: var(--accent2); color: var(--accent2); }
+    .option-btn:disabled { cursor: default; }
+
+    .explanation-box {
+      margin: 0 1.75rem 1.25rem;
+      background: #fffbeb;
+      border: 2px solid #fde68a;
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      display: none;
+    }
+
+    .explanation-box.show { display: block; animation: fadeIn 0.3s ease; }
+    .explanation-box strong { color: var(--green); }
+
+    .card-footer {
+      padding: 1.25rem 1.75rem;
+      border-top: 2px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .next-btn {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 0.65rem 1.5rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      display: none;
+    }
+
+    .next-btn.show { display: block; }
+    .next-btn:hover { background: #2d2d4e; transform: translateY(-1px); }
+
+    /* Progress */
+    .progress-wrap {
+      margin-bottom: 1.5rem;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), var(--yellow));
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+
+    /* Result screen */
+    .result-screen {
+      text-align: center;
+      padding: 3rem 2rem;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      display: none;
+    }
+
+    .result-screen.show { display: block; animation: fadeIn 0.5s ease; }
+
+    .result-emoji { font-size: 4rem; margin-bottom: 1rem; }
+    .result-score { font-size: 3rem; font-weight: 800; letter-spacing: -0.04em; color: var(--accent); }
+    .result-label { color: var(--muted); font-family: 'Fira Code', monospace; font-size: 0.85rem; margin: 0.5rem 0 1.5rem; }
+
+    .restart-btn {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      background: var(--accent2);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .restart-btn:hover { opacity: 0.85; }
+
+    @media (max-width: 520px) {
+      .options-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Dev<span>Quiz</span></div>
+  <div class="score-display" id="score-header">Score: 0 / 0</div>
+</header>
+
+<main>
+  <div class="category-bar" id="cat-bar">
+    <button class="cat-btn active" onclick="setCategory('all', this)">All Topics</button>
+    <button class="cat-btn" onclick="setCategory('python', this)">Python</button>
+    <button class="cat-btn" onclick="setCategory('javascript', this)">JavaScript</button>
+    <button class="cat-btn" onclick="setCategory('sql', this)">SQL</button>
+    <button class="cat-btn" onclick="setCategory('react', this)">React JS</button>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-info">
+      <span id="q-counter">Question 1 of 10</span>
+      <span id="q-streak">🔥 Streak: 0</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="quiz-card" id="quiz-card">
+    <div class="card-header">
+      <div class="q-meta" id="q-meta">Question 1</div>
+      <div class="q-tag" id="q-tag">Python</div>
+    </div>
+    <div class="question-body">
+      <div class="question-text" id="q-text"></div>
+      <div class="code-snippet" id="q-code" style="display:none"></div>
+    </div>
+    <div class="options-grid" id="options-grid"></div>
+    <div class="explanation-box" id="explanation-box"></div>
+    <div class="card-footer">
+      <div style="font-family:'Fira Code',monospace;font-size:0.78rem;color:var(--muted)" id="footer-hint">Select an answer above</div>
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next →</button>
+    </div>
+  </div>
+
+  <div class="result-screen" id="result-screen">
+    <div class="result-emoji" id="result-emoji">🎉</div>
+    <div class="result-score" id="result-score">8/10</div>
+    <div class="result-label" id="result-label">// great performance!</div>
+    <button class="restart-btn" onclick="restart()">Try Again</button>
+  </div>
+</main>
+
+<script>
+const allQuestions = [
+  {
+    category: 'python',
+    q: 'What is the output of the following Python code?',
+    code: 'x = [1, 2, 3]\ny = x\ny.append(4)\nprint(x)',
+    options: ['[1, 2, 3]', '[1, 2, 3, 4]', '[4]', 'Error'],
+    answer: 1,
+    explanation: 'In Python, lists are mutable and assigned by reference. So `y = x` makes both variables point to the same list object. Appending to `y` also modifies `x`.'
+  },
+  {
+    category: 'python',
+    q: 'Which of the following is used to handle exceptions in Python?',
+    options: ['try / catch', 'try / except', 'error / handle', 'begin / rescue'],
+    answer: 1,
+    explanation: 'Python uses `try / except` blocks to handle exceptions, unlike JavaScript which uses `try / catch`.'
+  },
+  {
+    category: 'python',
+    q: 'What does the `len()` function return for a dictionary with 3 key-value pairs?',
+    options: ['6', '3', '2', '1'],
+    answer: 1,
+    explanation: '`len()` on a dictionary returns the number of key-value pairs (keys only). For `{a:1, b:2, c:3}`, it returns 3.'
+  },
+  {
+    category: 'javascript',
+    q: 'What is the output of this JavaScript snippet?',
+    code: "console.log(typeof null);",
+    options: ['"null"', '"object"', '"undefined"', '"boolean"'],
+    answer: 1,
+    explanation: 'This is a famous JS bug. `typeof null` returns `"object"` even though null is not an object — it\'s a historical mistake in the language that was never fixed for backward compatibility.'
+  },
+  {
+    category: 'javascript',
+    q: 'Which method is used to convert a JSON string to a JavaScript object?',
+    options: ['JSON.stringify()', 'JSON.parse()', 'JSON.convert()', 'JSON.objectify()'],
+    answer: 1,
+    explanation: '`JSON.parse()` converts a JSON-formatted string into a JavaScript object. `JSON.stringify()` does the reverse — object to string.'
+  },
+  {
+    category: 'javascript',
+    q: 'What will the following code output?',
+    code: "console.log(1 + '2' + 3);",
+    options: ['6', '"123"', '"33"', 'Error'],
+    answer: 1,
+    explanation: 'JS evaluates left to right. `1 + "2"` triggers string coercion → `"12"`. Then `"12" + 3` → `"123"`. This is type coercion in action.'
+  },
+  {
+    category: 'sql',
+    q: 'Which SQL clause is used to filter records AFTER grouping?',
+    options: ['WHERE', 'HAVING', 'FILTER', 'GROUP BY'],
+    answer: 1,
+    explanation: '`HAVING` filters after `GROUP BY`. `WHERE` filters before grouping. Think: WHERE filters rows, HAVING filters groups.'
+  },
+  {
+    category: 'sql',
+    q: 'What does SELECT DISTINCT do in SQL?',
+    options: [
+      'Selects the first record',
+      'Returns only unique/different values',
+      'Orders the results',
+      'Selects all records'
+    ],
+    answer: 1,
+    explanation: '`SELECT DISTINCT` removes duplicate rows from the result set, returning only unique values for the specified column(s).'
+  },
+  {
+    category: 'react',
+    q: 'In React, what hook is used to manage component state?',
+    options: ['useEffect', 'useState', 'useContext', 'useRef'],
+    answer: 1,
+    explanation: '`useState` is the primary React hook for adding state to functional components. It returns a state variable and a setter function: `const [count, setCount] = useState(0);`'
+  },
+  {
+    category: 'react',
+    q: 'What is the correct way to pass data from a parent component to a child component in React?',
+    options: ['Using state', 'Using props', 'Using refs', 'Using context only'],
+    answer: 1,
+    explanation: 'Props (short for properties) are how you pass data from parent to child in React. They flow one way — parent → child. For deeper sharing, use Context or state management libraries.'
+  },
+  {
+    category: 'python',
+    q: 'What is a lambda function in Python?',
+    options: [
+      'A named function defined with def',
+      'An anonymous function defined with lambda keyword',
+      'A function imported from a module',
+      'A recursive function'
+    ],
+    answer: 1,
+    explanation: 'Lambda functions are small anonymous functions defined with the `lambda` keyword. Example: `square = lambda x: x**2`. They\'re useful for short, one-time-use functions.'
+  },
+  {
+    category: 'javascript',
+    q: 'What does the `===` operator check in JavaScript?',
+    options: [
+      'Only value equality',
+      'Both value AND type equality',
+      'Only type equality',
+      'Reference equality'
+    ],
+    answer: 1,
+    explanation: '`===` is the strict equality operator — it checks both value AND type. `5 === "5"` is false. `==` only checks value after type coercion, so `5 == "5"` is true.'
+  }
+];
+
+let questions = [];
+let currentIndex = 0;
+let score = 0;
+let streak = 0;
+let answered = false;
+let selectedCategory = 'all';
+
+function setCategory(cat, btn) {
+  selectedCategory = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  restart();
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function loadQuestions() {
+  const pool = selectedCategory === 'all' ? allQuestions : allQuestions.filter(q => q.category === selectedCategory);
+  questions = shuffle(pool).slice(0, Math.min(10, pool.length));
+}
+
+function renderQuestion() {
+  if (currentIndex >= questions.length) { showResult(); return; }
+
+  const q = questions[currentIndex];
+  answered = false;
+
+  document.getElementById('quiz-card').style.display = 'block';
+  document.getElementById('result-screen').classList.remove('show');
+
+  document.getElementById('q-meta').textContent = `Question ${currentIndex + 1} of ${questions.length}`;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('q-counter').textContent = `Question ${currentIndex + 1} of ${questions.length}`;
+  document.getElementById('q-streak').textContent = `🔥 Streak: ${streak}`;
+
+  const tagEl = document.getElementById('q-tag');
+  tagEl.textContent = q.category.charAt(0).toUpperCase() + q.category.slice(1);
+  tagEl.className = 'q-tag ' + q.category;
+
+  const codeEl = document.getElementById('q-code');
+  if (q.code) {
+    codeEl.textContent = q.code;
+    codeEl.style.display = 'block';
+  } else {
+    codeEl.style.display = 'none';
+  }
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = q.options.map((opt, i) => `
+    <button class="option-btn" onclick="selectAnswer(${i})">${opt}</button>
+  `).join('');
+
+  document.getElementById('explanation-box').className = 'explanation-box';
+  document.getElementById('next-btn').className = 'next-btn';
+  document.getElementById('footer-hint').textContent = 'Select an answer above';
+
+  const pct = (currentIndex / questions.length) * 100;
+  document.getElementById('prog-fill').style.width = pct + '%';
+
+  updateScoreHeader();
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+
+  const q = questions[currentIndex];
+  const buttons = document.querySelectorAll('.option-btn');
+
+  buttons.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.answer) btn.classList.add('correct');
+    else if (i === idx) btn.classList.add('wrong');
+  });
+
+  if (idx === q.answer) {
+    score++;
+    streak++;
+    document.getElementById('footer-hint').textContent = '✅ Correct!';
+  } else {
+    streak = 0;
+    document.getElementById('footer-hint').textContent = '❌ Incorrect';
+  }
+
+  const expBox = document.getElementById('explanation-box');
+  expBox.innerHTML = `<strong>💡 Explanation:</strong> ${q.explanation}`;
+  expBox.classList.add('show');
+  document.getElementById('next-btn').classList.add('show');
+  document.getElementById('q-streak').textContent = `🔥 Streak: ${streak}`;
+  updateScoreHeader();
+}
+
+function updateScoreHeader() {
+  document.getElementById('score-header').textContent = `Score: ${score} / ${currentIndex + (answered ? 1 : 0)}`;
+}
+
+function nextQuestion() {
+  currentIndex++;
+  renderQuestion();
+}
+
+function showResult() {
+  document.getElementById('quiz-card').style.display = 'none';
+  const pct = Math.round((score / questions.length) * 100);
+  const rs = document.getElementById('result-screen');
+  rs.classList.add('show');
+
+  document.getElementById('result-score').textContent = `${score}/${questions.length}`;
+  document.getElementById('prog-fill').style.width = '100%';
+
+  let emoji, label;
+  if (pct >= 90) { emoji = '🏆'; label = '// outstanding performance!'; }
+  else if (pct >= 70) { emoji = '🎉'; label = '// great work — keep it up!'; }
+  else if (pct >= 50) { emoji = '💪'; label = '// good effort — review & retry!'; }
+  else { emoji = '📚'; label = '// study time — you\'ve got this!'; }
+
+  document.getElementById('result-emoji').textContent = emoji;
+  document.getElementById('result-label').textContent = label;
+}
+
+function restart() {
+  score = 0;
+  currentIndex = 0;
+  streak = 0;
+  answered = false;
+  loadQuestions();
+  document.getElementById('result-screen').classList.remove('show');
+  document.getElementById('quiz-card').style.display = 'block';
+  renderQuestion();
+}
+
+loadQuestions();
+renderQuestion();
+</script>
+</body>
+</html>
