@@ -2,7 +2,7 @@
 
 An interactive quiz application to help developers prepare for technical interviews. Covers **Python**, **JavaScript**, **SQL**, and **React JS** — the exact stack required for modern full-stack roles.
 
-🔗 **Live Demo:** [[https://yourusername.github.io/devquiz](https://sravankumarmekala.github.io/devquiz/)]([https://yourusername.github.io/devquiz](https://sravankumarmekala.github.io/devquiz/))
+🔗 **Live Demo:** [https://sravankumarmekala.github.io/devquiz/](https://sravankumarmekala.github.io/devquiz/)
 
 ---
 
@@ -113,7 +113,7 @@ Double-click index.html  # Opens directly in your browser
 **Sravan Kumar Mekala**
 - 📧 mekalasravankumar66@gmail.com
 - 🔗 [LinkedIn](https://www.linkedin.com/in/sravankumar-mekala-963096336)
-- 🐙 [GitHub](https://github.com/yourusername)
+- 🐙 [GitHub](https://github.com/SravanKumarMekala)
 
 ---
 
